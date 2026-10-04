@@ -1,0 +1,14 @@
+{
+  "name": "teachback",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Learn a topic by teaching it to a class of AI students.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

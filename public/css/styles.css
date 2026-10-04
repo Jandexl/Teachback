@@ -1,0 +1,2510 @@
+/* TeachBack: a classroom you present to.
+   The board is a deep slate; the four students carry the color. */
+
+:root {
+  /* A calm classroom: warm paper desk, a chalkboard for the slide, and the four classmates
+     carry the color. One pencil-yellow accent, only for the main action and focus. */
+  --board: #213b33;
+  --board-deep: #172b25;
+  --chalk: #f1efe4;
+  --paper: #f6f1e6;
+  --paper-2: #efe7d7;
+  --surface: #fffcf6;
+  --ink: #1e1b16;
+  --muted: #655d51;
+  --line: #e3d8c5;
+  --pencil: #f2b33d;
+  --pencil-deep: #c3870f;
+  --pencil-wash: #fbefd1;
+  --board-wash: #e8eee5;
+  --right: #1d7f57;
+  --wrong: #b8334b;
+  --shadow: 0 1px 2px rgba(70, 52, 24, 0.06), 0 10px 28px -16px rgba(70, 52, 24, 0.22);
+
+  --mika: #4f7fe8;
+  --rafa: #d64561;
+  --iya: #1f9e77;
+  --dev: #8a63d2;
+
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+
+  --step--1: 0.875rem;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.6rem;
+  --step-3: 2.4rem;
+  --step-4: clamp(2.6rem, 6vw, 4.4rem);
+
+  --radius-sm: 6px;
+  --radius: 12px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(ellipse 80% 50% at 15% 0%, #fbf7ee 0%, transparent 70%), var(--paper);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.55;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  line-height: 1.1;
+  margin: 0 0 0.5em;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0 0 0.75em;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--pencil);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.6rem 1.1rem;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: none;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--pencil);
+  color: var(--ink);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: var(--pencil-deep);
+}
+
+.btn-quiet {
+  border-color: var(--line);
+  background: var(--surface);
+}
+
+.btn-quiet:not(:disabled):hover {
+  border-color: var(--ink);
+}
+
+.btn-small {
+  min-height: 36px;
+  padding: 0.35rem 0.9rem;
+  font-size: var(--step--1);
+}
+
+.btn-mic {
+  background: var(--board);
+  color: var(--chalk);
+}
+
+.btn-mic .icon svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  display: block;
+}
+
+.btn-mic.is-live {
+  background: var(--wrong);
+  color: #fff;
+}
+
+/* Live mic level: five bars that move with your voice. */
+.meter {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+  margin-left: 0.25rem;
+}
+
+.meter i {
+  display: block;
+  width: 4px;
+  height: 100%;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.55);
+  transform: scaleY(0.15);
+  transform-origin: center;
+  transition: transform 80ms linear;
+}
+
+.meter.is-speaking i {
+  background: #fff;
+}
+
+.voice-status {
+  margin: -0.25rem 0 0;
+  min-height: 1.4em;
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meter i {
+    transition: none;
+  }
+}
+
+/* ---------- avatars: the four classmates ---------- */
+
+.avatar {
+  --size: 40px;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: var(--c);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: calc(var(--size) * 0.45);
+}
+
+.avatar-sm {
+  --size: 28px;
+}
+
+.avatar-lg {
+  --size: 64px;
+}
+
+.avatar .hand {
+  position: absolute;
+  top: -14px;
+  right: -10px;
+  width: 26px;
+  height: 26px;
+  padding: 3px;
+  border-radius: 50%;
+  background: var(--pencil);
+  border: 2px solid var(--surface);
+  transform-origin: bottom center;
+  animation: raise 0.5s cubic-bezier(0.3, 1.6, 0.6, 1) both;
+}
+
+.avatar .hand svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: var(--ink);
+}
+
+@keyframes raise {
+  from {
+    transform: translateY(10px) scale(0.4) rotate(-20deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar .hand {
+    animation: none;
+  }
+}
+
+/* ---------- errors ---------- */
+
+.error-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
+  background: #fbe7ea;
+  border-bottom: 2px solid var(--wrong);
+}
+
+.error-bar p {
+  margin: 0;
+  max-width: 70ch;
+}
+
+.error-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.hint,
+.fine {
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+/* ---------- start ---------- */
+
+.start {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.start-hero {
+  padding: clamp(2rem, 6vw, 5rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--step-1);
+  color: var(--board);
+  margin-bottom: 2rem;
+}
+
+.start h1 {
+  font-size: var(--step-4);
+  font-weight: 800;
+  max-width: 12ch;
+  color: var(--board);
+}
+
+.lede {
+  font-size: var(--step-1);
+  max-width: 52ch;
+  color: var(--muted);
+}
+
+.start-actions {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 560px;
+  margin-top: 1.5rem;
+}
+
+.dropzone {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1.5rem;
+  border: 2px dashed var(--board);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.dropzone strong {
+  font-size: var(--step-1);
+}
+
+.dropzone span {
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.topic-choice {
+  border: 0;
+  padding: 0;
+  margin: 1.75rem 0 0;
+  max-width: 560px;
+}
+
+.topic-choice legend {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--step-1);
+  color: var(--board);
+  margin-bottom: 0.75rem;
+}
+
+.choice-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.choice-card {
+  position: relative;
+  display: grid;
+  gap: 0.3rem;
+  padding: 1.1rem 1.1rem 1.1rem 3rem;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.choice-card input {
+  position: absolute;
+  left: 1.1rem;
+  top: 1.25rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--board);
+}
+
+.choice-card strong {
+  font-size: var(--step-1);
+  color: var(--ink);
+}
+
+.choice-card span {
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.choice-card:hover {
+  border-color: var(--board);
+}
+
+.choice-card.is-selected {
+  border-color: var(--board);
+  background: var(--board-wash);
+  box-shadow: inset 0 0 0 1px var(--board);
+}
+
+.choice-card:has(input:focus-visible) {
+  outline: 3px solid var(--pencil);
+  outline-offset: 2px;
+}
+
+.start-actions.is-waiting .dropzone {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
+.start-actions.is-waiting .dropzone:hover {
+  background: var(--surface);
+  border-color: var(--board);
+}
+
+.choose-first {
+  margin-top: 0.5rem;
+}
+
+.start-hero .fine {
+  margin-top: 1rem;
+}
+
+.dropzone:hover,
+.dropzone.is-over {
+  background: var(--pencil-wash);
+  border-color: var(--pencil-deep);
+}
+
+#file:focus-visible + .dropzone {
+  outline: 3px solid var(--pencil);
+  outline-offset: 2px;
+}
+
+.start-class {
+  background: var(--board);
+  color: var(--chalk);
+  padding: clamp(2rem, 6vw, 5rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.start-class h2 {
+  font-size: var(--step-2);
+}
+
+.roster {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.roster li {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.roster strong {
+  display: block;
+  font-size: var(--step-1);
+}
+
+.roster span {
+  color: #c3cfc4;
+}
+
+
+
+/* ---------- loading ---------- */
+
+.loading {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  text-align: center;
+  font-size: var(--step-1);
+}
+
+.loading .hint {
+  margin-top: -1rem;
+}
+
+.loading-class {
+  display: flex;
+  gap: 1rem;
+}
+
+.loading-class .avatar {
+  animation: bob 1.4s ease-in-out infinite;
+}
+
+.loading-class .avatar:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.loading-class .avatar:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.loading-class .avatar:nth-child(4) {
+  animation-delay: 0.45s;
+}
+
+@keyframes bob {
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-class .avatar {
+    animation: none;
+  }
+}
+
+/* ---------- top bar ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem clamp(1rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.topbar .brand,
+.brand-button {
+  margin: 0;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.topbar-file {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.progress {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap; /* long decks wrap instead of pushing the page sideways on phones */
+  justify-content: flex-end;
+  gap: 4px;
+  margin: 0 0 0 auto;
+  padding: 0;
+  min-width: 0;
+  max-width: 60%;
+}
+
+.progress li {
+  width: 18px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+}
+
+.progress li.is-done {
+  background: var(--board);
+}
+
+.progress li.is-current {
+  background: var(--pencil);
+}
+
+/* ---------- presenting ---------- */
+
+.present {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.present-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
+  gap: clamp(1rem, 2vw, 1.5rem);
+  padding: clamp(1rem, 2vw, 1.5rem);
+  align-items: start;
+}
+
+.stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr); /* never wider than the screen, even on small phones */
+  gap: 1rem;
+}
+
+.board {
+  margin: 0;
+  padding: clamp(0.6rem, 1.5vw, 1rem);
+  background: var(--board);
+  border-radius: var(--radius);
+  border-bottom: 10px solid var(--board-deep);
+}
+
+.board img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 62vh;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.text-slide {
+  aspect-ratio: 16 / 9;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: clamp(1.25rem, 4vw, 3rem);
+  overflow: auto;
+}
+
+.text-slide h2 {
+  font-size: var(--step-3);
+  color: var(--board);
+}
+
+.text-slide p {
+  font-size: var(--step-1);
+  max-width: 60ch;
+}
+
+.board figcaption {
+  margin-top: 0.5rem;
+  color: var(--chalk);
+  font-size: var(--step--1);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Present from memory */
+.memory-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  min-height: 32px;
+}
+.memory-toggle input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--pencil);
+}
+.memory-slide {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: repeating-linear-gradient(135deg, var(--surface), var(--surface) 14px, var(--paper-2) 14px, var(--paper-2) 28px);
+}
+.memory-slide p {
+  margin: 0;
+}
+
+.speak {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  box-shadow: var(--shadow);
+}
+
+.prompt {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 0;
+  font-size: var(--step-1);
+}
+
+.prompt-block {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.open-questions {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.open-q {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+}
+
+.open-q > span:nth-child(2) {
+  flex: 1;
+}
+
+.open-q-action {
+  flex: none;
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.open-q:not(:disabled):hover {
+  border-color: var(--pencil-deep);
+}
+
+.open-q.is-called {
+  border-color: var(--ink);
+  background: var(--pencil-wash);
+}
+
+.open-q.is-called .open-q-action {
+  color: var(--ink);
+}
+
+.queue-note {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.speak textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 7rem;
+  padding: 0.75rem;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  line-height: 1.5;
+}
+
+.speak textarea:focus {
+  border-color: var(--board);
+  outline: none;
+}
+
+.speak textarea:disabled {
+  opacity: 0.6;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.classroom {
+  position: sticky;
+  top: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 6rem);
+  box-shadow: var(--shadow);
+}
+
+.desks {
+  list-style: none;
+  margin: 0;
+  padding: 1.25rem 1rem 1rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+}
+
+.desks li {
+  display: grid;
+}
+
+.desk {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  width: 100%;
+  padding: 0.5rem 0.25rem;
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  background: none;
+  font-size: var(--step--1);
+}
+
+.desk-name {
+  font-weight: 700;
+}
+
+.desk-mood {
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.2;
+  min-height: 1.2em;
+}
+
+/* A raised hand is a button: click it to call on that classmate. */
+.desk-button {
+  cursor: pointer;
+  border-color: var(--line);
+  background: var(--pencil-wash);
+}
+
+.desk-button:not(:disabled):hover {
+  border-color: var(--pencil-deep);
+}
+
+.desk-button.is-called {
+  border-color: var(--ink);
+  background: var(--pencil-wash);
+}
+
+.desk-button:disabled {
+  cursor: not-allowed;
+}
+
+/* Mood badge on the avatar: ? confused, ~ not sure, ✓ following */
+.mood {
+  position: absolute;
+  bottom: -4px;
+  left: -6px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+}
+
+.mood-confused {
+  background: var(--wrong);
+}
+
+.mood-unsure {
+  background: var(--pencil-deep);
+}
+
+.mood-following {
+  background: var(--right);
+}
+
+.avatar-sm .mood {
+  display: none;
+}
+
+.feed {
+  list-style: none;
+  margin: 0;
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  overflow-y: auto;
+  align-content: start;
+}
+
+.feed-empty {
+  color: var(--muted);
+}
+
+.msg p {
+  margin: 0;
+}
+
+.msg-who {
+  display: block;
+  font-weight: 700;
+  font-size: var(--step--1);
+}
+
+.msg-student {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+
+.msg-student.is-question > div {
+  background: var(--pencil-wash);
+}
+
+.msg-student > div {
+  background: var(--paper);
+  border-left: 4px solid var(--c);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 0.5rem 0.75rem;
+}
+
+.msg-you {
+  margin-left: 2.25rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--paper-2);
+  border-radius: var(--radius-sm);
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.msg-note {
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-style: italic;
+}
+
+/* ---------- results, quiz, report ---------- */
+
+.page {
+  min-height: 100vh;
+}
+
+.results,
+.selfquiz,
+.report {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 2rem) 4rem;
+}
+
+.score-hero {
+  margin-bottom: 2.5rem;
+}
+
+.score-label {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.score-big {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(4rem, 14vw, 7rem);
+  line-height: 1;
+  color: var(--board);
+}
+
+.scoreboard {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.scoreboard li {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  padding: 0.75rem 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.scoreboard strong {
+  font-size: var(--step-1);
+}
+
+.questions h2,
+.report-section h2 {
+  font-size: var(--step-2);
+}
+
+.qcard {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin: 0 0 1rem;
+  box-shadow: var(--shadow);
+}
+
+.qcard h3,
+.qcard legend {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--step-1);
+  line-height: 1.35;
+  padding: 0;
+  margin-bottom: 0.75rem;
+}
+
+.qcard-answer {
+  color: var(--muted);
+}
+
+.chips {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+  border-radius: 999px;
+  font-size: var(--step--1);
+  border: 2px solid;
+}
+
+.chip.is-right {
+  border-color: var(--right);
+  background: #e7f5ee;
+}
+
+.chip.is-wrong {
+  border-color: var(--wrong);
+  background: #fbe9ec;
+}
+
+.traces {
+  margin: 0;
+  padding: 0.75rem 1rem 0.75rem 1.5rem;
+  background: var(--paper);
+  border-radius: var(--radius-sm);
+  font-size: var(--step--1);
+  display: grid;
+  gap: 0.35rem;
+}
+
+.next-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.selfquiz h1,
+.report h1 {
+  font-size: var(--step-3);
+  color: var(--board);
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.4rem;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.option input {
+  margin-top: 0.3rem;
+  accent-color: var(--board);
+}
+
+.option:has(input:checked) {
+  border-color: var(--board);
+}
+
+.option.is-right {
+  border-color: var(--right);
+  background: #e7f5ee;
+}
+
+.option.is-wrong {
+  border-color: var(--wrong);
+  background: #fbe9ec;
+}
+
+.explain {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.self-score {
+  margin: 0;
+  font-weight: 700;
+  font-size: var(--step-1);
+}
+
+.two-scores {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.two-scores > div {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.score-mid {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--step-3);
+  color: var(--board);
+}
+
+.verdict {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--step-2);
+  line-height: 1.2;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.report-section {
+  margin-top: 2.25rem;
+  box-shadow: var(--shadow);
+}
+
+.report-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.report-section ul li {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+}
+
+.report-section li p {
+  margin: 0.15rem 0 0;
+}
+
+.report-next ol {
+  margin: 0;
+  padding-left: 1.4rem;
+  display: grid;
+  gap: 0.5rem;
+  font-size: var(--step-1);
+}
+
+.slide-tag {
+  display: inline-block;
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--board);
+  background: var(--paper-2);
+  border-radius: 4px;
+  padding: 0 0.4rem;
+}
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 900px) {
+  .start {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .start h1 {
+    max-width: none;
+  }
+
+  .present-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .classroom {
+    position: static;
+    max-height: none;
+  }
+
+  .topbar-file {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .scoreboard,
+  .roster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .two-scores,
+  .choice-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .progress li {
+    width: 10px;
+  }
+}
+
+@media print {
+  .topbar,
+  .next-actions,
+  .more-actions,
+  .error-bar {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+}
+
+/* ---------- learning-focused results ---------- */
+
+.should-have {
+  margin: 0.75rem 0 0;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--pencil);
+  background: var(--pencil-wash);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.next-step {
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+  background: var(--board);
+  color: var(--chalk);
+  border-radius: var(--radius);
+}
+
+.next-step h2 {
+  font-size: var(--step-2);
+}
+
+.next-step p {
+  max-width: 55ch;
+}
+
+.next-step .next-actions {
+  margin-top: 1rem;
+}
+
+.link-button {
+  border: 0;
+  background: none;
+  padding: 0.5rem 0.25rem;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  font-size: var(--step--1);
+}
+
+.skipped {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  justify-items: start;
+}
+
+.skipped p:not(.score-label) {
+  margin: 0;
+  font-size: var(--step--1);
+}
+
+/* ---------- re-teach mode ---------- */
+
+.mode-tag {
+  margin-left: auto;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--pencil-wash);
+  font-size: var(--step--1);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mode-tag + .progress {
+  margin-left: 0.75rem;
+}
+
+.progress li.is-skipped {
+  background: transparent;
+  border: 1px dashed var(--line);
+}
+
+.reteach-focus {
+  margin: 0.25rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border-left: 4px solid var(--pencil);
+  background: var(--pencil-wash);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: var(--step--1);
+}
+
+.score-history {
+  margin: 1rem 0 0.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 6px solid var(--muted);
+  border-radius: var(--radius);
+}
+
+.score-history.is-up {
+  border-left-color: var(--right);
+}
+
+.score-history.is-down {
+  border-left-color: var(--wrong);
+}
+
+.score-history p {
+  margin: 0.5rem 0 0;
+}
+
+.attempts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+}
+
+.attempts li {
+  display: grid;
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.attempts li strong {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1.1;
+  color: var(--muted);
+}
+
+.attempts li.is-latest strong {
+  color: var(--board);
+}
+
+.attempts li {
+  position: relative;
+}
+
+/* An arrow between attempts: they are a sequence, earliest first. */
+.attempts li + li {
+  padding-left: 1.6rem;
+}
+
+.attempts li + li::before {
+  content: '→';
+  position: absolute;
+  left: 0.2rem;
+  top: 0.2rem;
+  font-size: var(--step-1);
+  color: var(--muted);
+}
+
+/* "Got it from the slide": understood without you, so it looks different from "Following". */
+.mood-slide {
+  background: var(--muted);
+}
+
+.fixed-yes {
+  color: var(--right);
+  font-weight: 700;
+}
+
+.fixed-no {
+  color: var(--wrong);
+  font-weight: 700;
+}
+
+/* The class answers stay hidden until you take your own quiz. */
+.answers-hidden {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--board, var(--board));
+  background: var(--paper-2);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.score-history .fresh-note {
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+.score-history .fair-compare {
+  margin: 0.25rem 0;
+  font-size: 1.05rem;
+}
+.chip.is-neutral {
+  border-color: var(--line, var(--line));
+  background: var(--paper-2);
+}
+
+/* Learn first: study cards */
+.study-card {
+  display: grid;
+  gap: 0.75rem;
+}
+.study-card h2 {
+  margin: 0;
+  font-size: var(--step-1);
+  color: var(--board);
+}
+.study-part {
+  padding: 0.6rem 0.85rem;
+  border-left: 4px solid var(--board);
+  background: var(--paper-2);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.study-part h3 {
+  margin: 0 0 0.2rem;
+  font-size: var(--step--1);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--board);
+}
+.study-part p {
+  margin: 0;
+}
+.study-gaps {
+  border-left-color: var(--pencil);
+  background: var(--pencil-wash);
+}
+.study-offer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1rem;
+  border: 2px solid var(--board);
+  border-radius: var(--radius);
+  background: var(--board-wash);
+}
+
+.study-offer strong {
+  display: block;
+  color: var(--board);
+}
+
+.study-offer span {
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.btn-study {
+  background: var(--board);
+  color: var(--chalk);
+  border-color: var(--board);
+}
+
+.btn-study:hover:not(:disabled) {
+  background: var(--board-deep);
+}
+
+/* Your own quiz: explain before you see why */
+.reason {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--pencil);
+  background: var(--pencil-wash);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.reason p {
+  margin: 0;
+}
+.reason-box {
+  width: 100%;
+  font: inherit;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.self-reason {
+  margin: 0.75rem 0 0;
+  font-style: italic;
+}
+
+.end-now {
+  justify-self: start;
+}
+
+.more-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-top: 1rem;
+}
+
+/* =====================================================================
+   Motion and one-screen layout
+   Motion explains something: you arrived, a classmate spoke, a hand went
+   up, a score was counted. It plays once, never on every redraw.
+   ===================================================================== */
+
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Layered neutral elevation ("beautiful shadows"), warmed for paper. */
+  --shadow-sm: 0 2px 3px -1px rgba(60, 42, 14, 0.1), 0 1px 0 0 rgba(60, 42, 14, 0.02), 0 0 0 1px rgba(60, 42, 14, 0.07);
+  --shadow-md: 0 0 0 1px rgba(60, 42, 14, 0.05), 0 1px 1px -0.5px rgba(60, 42, 14, 0.06), 0 3px 3px -1.5px rgba(60, 42, 14, 0.06),
+    0 6px 6px -3px rgba(60, 42, 14, 0.06), 0 12px 12px -6px rgba(60, 42, 14, 0.06), 0 24px 24px -12px rgba(60, 42, 14, 0.06);
+}
+
+.speak,
+.classroom,
+.report-section,
+.qcard,
+.two-scores > div,
+.choice-card,
+.dropzone {
+  box-shadow: var(--shadow-md);
+}
+
+/* Buttons: a small lift on hover, a press on click. */
+.btn {
+  transition: transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), background-color 0.18s;
+}
+.btn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+.btn:not(:disabled):active {
+  transform: translateY(1px) scale(0.98);
+}
+.btn-primary {
+  box-shadow: 0 1px 0 var(--pencil-deep), 0 6px 14px -8px rgba(195, 135, 15, 0.7);
+}
+.choice-card {
+  transition: border-color 0.2s, background-color 0.2s, transform 0.2s var(--ease-out);
+}
+.choice-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Arriving on a screen: its parts rise in, one after another. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+.enter .start-hero > *,
+.enter .start-class > *,
+.enter.present .stage > *,
+.enter.present .classroom,
+.enter .split-aside > *,
+.enter .split-main,
+.enter .selfquiz > *,
+.enter.loading > * {
+  animation: rise 0.7s var(--ease-out) both;
+}
+.enter .start-hero > :nth-child(2),
+.enter .split-aside > :nth-child(2),
+.enter .selfquiz > :nth-child(2) {
+  animation-delay: 0.08s;
+}
+.enter .start-hero > :nth-child(3),
+.enter .split-aside > :nth-child(3),
+.enter .selfquiz > :nth-child(3),
+.enter.present .classroom {
+  animation-delay: 0.16s;
+}
+.enter .start-hero > :nth-child(n + 4),
+.enter .split-aside > :nth-child(n + 4),
+.enter .split-main,
+.enter .start-class > * {
+  animation-delay: 0.24s;
+}
+
+/* Headline: word by word (staggered word reveal). */
+.word-reveal .word {
+  display: inline-block;
+}
+.enter .word-reveal .word {
+  animation: rise 0.8s var(--ease-out) both;
+  animation-delay: calc(0.1s + var(--i) * 0.07s);
+}
+
+/* Class preview on the start screen: questions arrive one by one, then start again. */
+.class-preview {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.75rem 0 1.75rem;
+}
+.preview-bubble {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.55rem 0.85rem 0.55rem 0.55rem;
+  width: fit-content;
+  max-width: 100%;
+  border-radius: 999px;
+  background: rgba(241, 239, 228, 0.08);
+  border: 1px solid rgba(241, 239, 228, 0.14);
+  color: var(--chalk);
+  font-size: var(--step--1);
+  opacity: 0;
+  animation: bubble-loop 10s var(--ease-out) infinite;
+  animation-delay: calc(var(--i) * 1.4s);
+}
+.preview-bubble:nth-child(even) {
+  margin-left: 2rem;
+}
+@keyframes bubble-loop {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  6%,
+  70% {
+    opacity: 1;
+    transform: none;
+  }
+  80%,
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* A classmate speaks: the message pops in. A new hand goes up: it waves. */
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+}
+.msg.is-new {
+  animation: pop 0.5s var(--ease-out) both;
+  animation-delay: var(--d, 0s);
+}
+@keyframes wave {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-14deg) translateY(-2px);
+  }
+  60% {
+    transform: rotate(10deg);
+  }
+}
+.classroom.is-fresh .hand {
+  animation: wave 0.7s var(--ease-out) 0.2s both;
+  transform-origin: bottom center;
+}
+
+/* One question or section at a time. */
+.pager {
+  display: grid;
+  gap: 1rem;
+}
+@keyframes turn {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+}
+.pager-item.is-turned,
+.tab-panel.is-turned {
+  animation: turn 0.45s var(--ease-out) both;
+}
+.pager-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.pager-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.dot {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  cursor: pointer;
+  transition: transform 0.2s var(--ease-out), background-color 0.2s;
+}
+.dot.is-current {
+  transform: scale(1.35);
+  border-color: var(--board);
+}
+.dot.is-done {
+  background: var(--board);
+  border-color: var(--board);
+}
+.dot.is-right {
+  background: var(--right);
+  border-color: var(--right);
+}
+.dot.is-wrong {
+  background: var(--wrong);
+  border-color: var(--wrong);
+}
+.dot.is-part {
+  background: var(--pencil);
+  border-color: var(--pencil-deep);
+}
+
+.tab-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+.tab {
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.tab:hover {
+  color: var(--ink);
+}
+.tab.is-current {
+  background: var(--board);
+  border-color: var(--board);
+  color: var(--chalk);
+}
+.report-wait {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  color: var(--muted);
+}
+
+/* Results and report: a summary on the left, the details on the right. */
+.split {
+  max-width: 1180px;
+}
+@media (min-width: 900px) {
+  .split {
+    display: grid;
+    grid-template-columns: minmax(300px, 400px) minmax(0, 1fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: start;
+  }
+  .split .score-hero {
+    margin-bottom: 1.5rem;
+  }
+  .split .next-step {
+    margin-top: 0;
+  }
+}
+
+/* Laptop and desktop: everything fits in the window, no page scrolling. Long parts (the
+   classmates' chat, a long answer) scroll inside their own panel. Phones scroll normally. */
+@media (min-width: 900px) and (min-height: 620px) {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+  #app {
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  #app > :not(.error-bar) {
+    flex: 1;
+    min-height: 0;
+  }
+  .start,
+  .loading,
+  .page,
+  .present {
+    min-height: 0;
+    height: 100%;
+  }
+  .start-hero {
+    padding: clamp(1.5rem, 5vh, 4rem) clamp(2rem, 5vw, 5rem);
+    overflow: auto;
+    justify-content: safe center; /* never cut off the top when the window is short */
+  }
+  .start .lede {
+    font-size: clamp(1rem, 2.4vh, 1.25rem);
+  }
+  .start h1 {
+    font-size: clamp(2.4rem, 7.5vh, 4.4rem);
+  }
+  .brand {
+    margin-bottom: clamp(0.75rem, 3vh, 2rem);
+  }
+  .page {
+    display: flex;
+    flex-direction: column;
+  }
+  .page > main {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    margin: 0 auto;
+    padding-bottom: 1.5rem;
+  }
+  .split {
+    height: 100%;
+    align-items: stretch;
+  }
+  .split-aside,
+  .split-main,
+  .selfquiz {
+    min-height: 0;
+    overflow: auto;
+  }
+  .split-aside {
+    padding-right: 0.25rem;
+  }
+  .score-big {
+    font-size: clamp(3rem, 11vh, 6rem);
+  }
+  .present-grid {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .stage {
+    height: 100%;
+    min-height: 0;
+    /* The slide always keeps a good share of the screen; the talking area scrolls inside. */
+    grid-template-rows: minmax(38vh, 1fr) minmax(0, auto);
+    gap: 0.75rem;
+  }
+  .speak {
+    min-height: 0;
+    padding: 0.85rem 1rem;
+    gap: 0.55rem;
+  }
+  .speak .prompt {
+    font-size: var(--step-0);
+  }
+  .open-questions {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .open-q {
+    width: auto;
+    padding: 0.35rem 0.6rem;
+    font-size: var(--step--1);
+  }
+  .queue-note {
+    display: none;
+  }
+  .study-offer {
+    padding: 0.6rem 0.85rem;
+  }
+  .board {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .board img {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+  }
+  .text-slide {
+    flex: 1;
+    min-height: 0;
+    aspect-ratio: auto;
+    padding: clamp(1rem, 3vh, 2.5rem) clamp(1.25rem, 3vw, 3rem);
+  }
+  .text-slide h2 {
+    font-size: clamp(1.4rem, 4.5vh, 2.4rem);
+  }
+  .text-slide p {
+    font-size: clamp(0.95rem, 2.3vh, 1.25rem);
+    margin-bottom: 0.5em;
+  }
+  .speak {
+    overflow: auto;
+  }
+  .speak textarea {
+    min-height: 3.5rem;
+  }
+  .classroom {
+    position: static;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+  }
+  .feed {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter *,
+  .msg.is-new,
+  .classroom.is-fresh .hand,
+  .pager-item.is-turned,
+  .tab-panel.is-turned {
+    animation: none !important;
+  }
+  .preview-bubble {
+    animation: none;
+    opacity: 1;
+  }
+  .btn,
+  .choice-card {
+    transition: none;
+  }
+}
+
+/* =====================================================================
+   Design pass 3: drawn classmates, chalkboard scene, steps, score rings,
+   paper texture and framed slide board.
+   ===================================================================== */
+
+:root {
+  --wood: #b98a55;
+  --wood-deep: #94693a;
+  --chalk-dim: rgba(241, 239, 228, 0.72);
+}
+
+/* Paper you can almost feel: a faint diagonal weave under everything. */
+body {
+  background:
+    repeating-linear-gradient(135deg, rgba(120, 90, 40, 0.035) 0 1px, transparent 1px 10px),
+    radial-gradient(ellipse 80% 50% at 15% 0%, #fbf7ee 0%, transparent 70%),
+    var(--paper);
+  background-attachment: fixed;
+}
+
+/* ---------- drawn classmates ---------- */
+.avatar {
+  background: var(--c);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.12), 0 2px 6px -2px rgba(30, 27, 22, 0.35);
+}
+
+.avatar .face {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.avatar .face svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.avatar .mood {
+  z-index: 1;
+}
+
+/* ---------- start: the chalkboard and the four desks ---------- */
+.start-class {
+  gap: 0.75rem;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse 70% 50% at 80% 0%, rgba(255, 255, 255, 0.07), transparent 70%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 10px),
+    var(--board);
+}
+
+.start-class h2 {
+  margin: 0.5rem 0 0;
+  font-size: var(--step-1);
+  color: var(--chalk-dim);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.chalkboard {
+  position: relative;
+  padding: clamp(1rem, 3vh, 1.75rem) clamp(1.25rem, 3vw, 2.25rem);
+  border-radius: 14px;
+  background: radial-gradient(ellipse at 30% 20%, #2c4d43 0%, #1c3329 75%);
+  border: 8px solid var(--wood);
+  box-shadow: inset 0 0 0 2px var(--wood-deep), inset 0 10px 30px rgba(0, 0, 0, 0.35), 0 18px 30px -14px rgba(0, 0, 0, 0.55);
+  color: var(--chalk);
+  overflow: hidden;
+}
+
+.chalk-small {
+  margin: 0;
+  color: var(--chalk-dim);
+  font-size: var(--step-0);
+}
+
+.chalk-big {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 8vh, 4rem);
+  line-height: 1.05;
+  color: var(--pencil);
+  letter-spacing: -0.01em;
+}
+
+.chalk-line {
+  display: block;
+  width: min(220px, 60%);
+  margin-top: 0.15rem;
+  color: var(--chalk-dim);
+}
+
+.chalk-line svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  stroke-dasharray: 140;
+  stroke-dashoffset: 140;
+  animation: chalk-draw 1.1s 0.9s var(--ease-out, ease-out) forwards;
+}
+
+.chalk-doodle {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  width: clamp(110px, 16vw, 190px);
+  color: rgba(241, 239, 228, 0.5);
+  transform: translateY(-50%);
+}
+
+.chalk-doodle svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chalk-doodle path,
+.chalk-doodle circle {
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: chalk-draw 1.6s 0.5s var(--ease-out, ease-out) forwards;
+}
+
+@keyframes chalk-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.start-desks {
+  list-style: none;
+  margin: 3.6rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.seat {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.start-desks .seat strong {
+  margin-top: 0.4rem;
+  font-size: var(--step-0);
+  color: var(--chalk);
+}
+
+.seat-role {
+  color: var(--chalk-dim);
+  font-size: var(--step--1);
+  line-height: 1.25;
+}
+
+.desk-top {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 12px;
+  margin-top: -14px;
+  border-radius: 6px;
+  background: linear-gradient(var(--wood), var(--wood-deep));
+  box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.start-desks .avatar {
+  position: relative;
+  z-index: 1;
+  animation: idle 4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.9s);
+}
+
+@keyframes idle {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.seat-bubble {
+  position: absolute;
+  bottom: calc(100% - 0.1rem);
+  left: 50%;
+  z-index: 3;
+  width: max-content;
+  max-width: 150px;
+  margin: 0;
+  padding: 0.45rem 0.7rem;
+  border-radius: 12px 12px 12px 3px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.8rem;
+  line-height: 1.3;
+  text-align: left;
+  border-left: 3px solid var(--c);
+  box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transform: translate(-50%, 6px) scale(0.92);
+  transform-origin: 20% 100%;
+  animation: bubble-loop 12s infinite;
+  animation-delay: calc(var(--i, 0) * 3s);
+  pointer-events: none;
+}
+
+.seat:first-child .seat-bubble {
+  left: 0;
+  transform: translate(0, 6px) scale(0.92);
+  animation-name: bubble-loop-left;
+}
+
+.seat:last-child .seat-bubble {
+  left: auto;
+  right: 0;
+  transform: translate(0, 6px) scale(0.92);
+  transform-origin: 80% 100%;
+  animation-name: bubble-loop-left;
+  border-radius: 12px 12px 3px 12px;
+}
+
+@keyframes bubble-loop {
+  0% { opacity: 0; transform: translate(-50%, 6px) scale(0.92); }
+  4%, 22% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  27%, 100% { opacity: 0; transform: translate(-50%, -4px) scale(0.98); }
+}
+
+@keyframes bubble-loop-left {
+  0% { opacity: 0; transform: translate(0, 6px) scale(0.92); }
+  4%, 22% { opacity: 1; transform: translate(0, 0) scale(1); }
+  27%, 100% { opacity: 0; transform: translate(0, -4px) scale(0.98); }
+}
+
+/* ---------- waiting: the class writes at their desks ---------- */
+.loading-class {
+  gap: 1.25rem;
+  align-items: end;
+}
+
+.loading-class .seat {
+  width: 96px;
+}
+
+.loading-class-md .seat {
+  width: 64px;
+}
+
+.loading-class .avatar {
+  position: relative;
+  z-index: 1;
+}
+
+.loading-class .desk-top {
+  height: 26px;
+  margin-top: -16px;
+}
+
+.loading-class-md .desk-top {
+  height: 18px;
+  margin-top: -10px;
+}
+
+.desk-top .paper {
+  position: absolute;
+  left: 14%;
+  top: -7px;
+  width: 44%;
+  height: 22px;
+  padding: 4px 5px;
+  border-radius: 2px;
+  background: var(--surface);
+  transform: rotate(-4deg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.desk-top .paper i {
+  display: block;
+  height: 2px;
+  margin-bottom: 3px;
+  border-radius: 1px;
+  background: var(--line);
+  transform-origin: left;
+  animation: write 2.4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.25s);
+}
+
+.desk-top .paper i:nth-child(2) { animation-delay: calc(var(--i, 0) * 0.25s + 0.4s); }
+.desk-top .paper i:nth-child(3) { animation-delay: calc(var(--i, 0) * 0.25s + 0.8s); }
+
+@keyframes write {
+  0% { transform: scaleX(0); }
+  45%, 85% { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+
+.desk-top .pencil {
+  position: absolute;
+  right: 22%;
+  top: -10px;
+  width: 4px;
+  height: 20px;
+  border-radius: 2px 2px 1px 1px;
+  background: linear-gradient(var(--pencil) 80%, #e8c9a4 80%);
+  transform: rotate(32deg);
+  transform-origin: bottom;
+  animation: scribble 0.9s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.17s);
+}
+
+@keyframes scribble {
+  50% { transform: rotate(24deg) translateX(-3px); }
+}
+
+/* ---------- steps in the top bar ---------- */
+.steps {
+  list-style: none;
+  display: flex;
+  gap: 0.25rem;
+  margin: 0 0 0 auto;
+  padding: 0;
+}
+
+.steps + .progress,
+.steps + * {
+  margin-left: 0;
+}
+
+.steps li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.65rem 0.25rem 0.3rem;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: background 0.3s, color 0.3s;
+}
+
+.step-n {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.7rem;
+  height: 1.4rem;
+  border-radius: 999px;
+  background: var(--paper-2);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+}
+
+.steps li.is-done {
+  color: var(--board);
+}
+
+.steps li.is-done .step-n {
+  background: var(--board);
+  color: var(--chalk);
+}
+
+.steps li.is-now {
+  background: var(--pencil-wash);
+  color: var(--ink);
+}
+
+.steps li.is-now .step-n {
+  background: var(--pencil);
+  color: var(--ink);
+  animation: step-pulse 2.4s ease-out infinite;
+}
+
+@keyframes step-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(242, 179, 61, 0.55); }
+  70%, 100% { box-shadow: 0 0 0 7px rgba(242, 179, 61, 0); }
+}
+
+@media (max-width: 899px) {
+  .steps li:not(.is-now) .step-label { display: none; }
+  .steps li:not(.is-now) { padding-right: 0.3rem; }
+  .topbar-file { display: none; }
+}
+
+/* ---------- score rings ---------- */
+.ring {
+  --d: 188px;
+  --w: 9;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--d);
+  height: var(--d);
+  margin-bottom: 0.5rem;
+  color: var(--wrong);
+}
+
+.ring-md {
+  --d: 104px;
+  margin: 0 auto 0.5rem;
+}
+
+.ring-mid { color: var(--pencil-deep); }
+.ring-good { color: var(--right); }
+
+.ring-svg {
+  position: absolute;
+  inset: 0;
+}
+
+.ring-svg svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.ring-svg circle {
+  fill: none;
+  stroke-width: var(--w);
+  stroke-linecap: round;
+}
+
+.ring-track {
+  stroke: var(--paper-2);
+}
+
+.ring-fill {
+  stroke: currentColor;
+  animation: ring-in 1.4s 0.15s var(--ease-out, ease-out) backwards;
+  filter: drop-shadow(0 4px 6px color-mix(in srgb, currentColor 35%, transparent));
+}
+
+@keyframes ring-in {
+  from { stroke-dasharray: 0.01 100; }
+}
+
+.ring .score-big {
+  font-size: 3.1rem;
+  color: var(--ink);
+}
+
+.ring .score-mid {
+  font-size: 1.55rem;
+  color: var(--ink);
+}
+
+.ring-md .ring-svg circle { stroke-width: 10; }
+
+.two-scores > div {
+  text-align: center;
+}
+
+.two-scores .score-label {
+  font-size: 0.95rem;
+}
+
+/* ---------- the slide board: framed like the chalkboard ---------- */
+.board {
+  position: relative;
+  border: 0;
+  border-radius: 14px;
+  padding: clamp(0.75rem, 1.6vw, 1.1rem);
+  background: radial-gradient(ellipse at 25% 15%, #2c4d43 0%, var(--board) 70%);
+  box-shadow: inset 0 0 0 5px var(--wood), inset 0 0 0 7px var(--wood-deep), 0 20px 30px -18px rgba(23, 43, 37, 0.7);
+}
+
+.board::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 7px;
+  height: 7px;
+  border-radius: 3px;
+  background: linear-gradient(#e8dcc6, #c9b895);
+  opacity: 0.9;
+}
+
+.board figcaption {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- the start headline gets a pencil underline ---------- */
+.word-reveal .word {
+  position: relative;
+}
+
+.word-reveal .word:last-of-type::after {
+  content: '';
+  position: absolute;
+  left: -2%;
+  right: 2%;
+  bottom: -0.04em;
+  height: 0.2em;
+  background: var(--pencil);
+  opacity: 0.85;
+  border-radius: 999px;
+  z-index: -1;
+  transform-origin: left;
+  animation: underline-draw 0.8s 1s var(--ease-out, ease-out) backwards;
+}
+
+@keyframes underline-draw {
+  from { transform: scaleX(0); }
+}
+
+/* ---------- small touches ---------- */
+.choice-card {
+  transition: transform 0.25s var(--ease-out, ease-out), box-shadow 0.25s, border-color 0.2s, background 0.2s;
+}
+
+.choice-card:hover {
+  transform: translateY(-2px);
+}
+
+.report-section,
+.q-card,
+.next-step {
+  position: relative;
+}
+
+@media (max-width: 899px) {
+  .start-desks { margin-top: 4.6rem; }
+  .seat-bubble { max-width: 120px; font-size: 0.72rem; }
+  .chalk-doodle { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seat-bubble { animation: none; opacity: 0; }
+  .seat:first-child .seat-bubble { opacity: 1; transform: none; }
+  .start-desks .avatar,
+  .desk-top .paper i,
+  .desk-top .pencil,
+  .steps li.is-now .step-n,
+  .ring-fill,
+  .word-reveal .word:last-of-type::after { animation: none; }
+  .chalk-line svg,
+  .chalk-doodle path,
+  .chalk-doodle circle { animation: none; stroke-dashoffset: 0; }
+}
