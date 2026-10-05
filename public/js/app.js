@@ -404,6 +404,7 @@ function retireQuiz() {
   state.selfReasons = {};
   state.selfShown = {};
   state.selfBlankWarned = false;
+  state.pages = {}; // a new quiz and report start at their first question and section
 }
 
 function startClass(fileName, slides, { again = false } = {}) {
@@ -439,6 +440,7 @@ function startClass(fileName, slides, { again = false } = {}) {
     selfShown: {},
     selfBlankWarned: false,
     report: null,
+    pages: {},
     cards: again ? state.cards : {}, // same slides: keep the study cards
   });
   enterSlide();
@@ -772,6 +774,8 @@ function skipSlide() {
 
 // Finish early: the quiz covers only the slides you presented.
 function endClassNow() {
+  // Nothing new presented (for example re-teaching, before re-teaching any slide): no new quiz.
+  if (!presentedSomething()) return showError(NOTHING_PRESENTED());
   const left = state.order.length - state.pos - (slideLog().said ? 1 : 0);
   const unsent = state.draft.trim() ? ' What you typed but did not send will not count.' : '';
   const leftOut =
