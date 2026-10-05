@@ -896,6 +896,7 @@ textarea {
   gap: 0.75rem;
   overflow-y: auto;
   align-content: start;
+  grid-auto-rows: max-content; /* never squash messages (your answers) to a sliver when the feed is full */
 }
 
 .feed-empty {
