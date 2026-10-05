@@ -48,7 +48,7 @@ const state = {
   cards: {}, // slide index -> { status: 'loading' | 'ready' | 'error', card, error }
 };
 
-const MAX_ROUNDS = 3; // answer rounds per slide, so one slide cannot go on forever
+const MAX_ROUNDS = 6; // answer rounds per slide (enough to call on each raised hand), so one slide cannot go on forever
 // "Following" means your explanation worked; "Got it from the slide" means they understood
 // from the slide itself, not from you, so it never counts as your teaching.
 const MOOD_LABELS = { confused: 'Confused', unsure: 'Not sure yet', following: 'Following', slide: 'From the slide' };
@@ -1546,7 +1546,16 @@ function Present() {
       h('p', { class: 'queue-note' }, calledOn ? `Only ${STUDENTS[calledOn].name} is answering, but everyone hears you.` : 'Your answer goes to everyone with a hand up. Answer several questions at once if you like.')
     );
   } else {
-    prompt = h('p', { class: 'prompt' }, isLast ? 'That was the last slide. End the class to see how much they learned from you.' : 'All hands are down. Move on when you are ready.');
+    const waiting = Object.keys(log.open || {}).length;
+    prompt = h(
+      'p',
+      { class: 'prompt' },
+      isLast
+        ? 'That was the last slide. End the class to see how much they learned from you.'
+        : waiting
+          ? 'Time to move on. Questions still open will show in your report.'
+          : 'All hands are down. Move on when you are ready.'
+    );
   }
 
   const canType = log.phase !== 'done';
