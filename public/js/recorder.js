@@ -59,6 +59,7 @@ export class Recorder {
     this.lastVoice = 0;
     this.phraseHasVoice = false;
     this.heardAnything = false;
+    this.warned = false; // the "can't hear you" hint can show again on every new recording
     this.noiseFloor = 0.01;
     this.startedAt = performance.now();
     this.active = true;
